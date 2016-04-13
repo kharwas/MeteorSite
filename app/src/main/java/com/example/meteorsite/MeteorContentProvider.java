@@ -23,20 +23,18 @@ public class MeteorContentProvider extends ContentProvider {
     public final static String COLUMN_GEO_LOCATION = "geo_location";
 
     public static final String AUTHORITY = "com.example.meteorsite.provider";
-    public static final Uri CONTENT_URI = Uri.parse(
-            "content://" + AUTHORITY + "/" + METEOR_TABLE);
+    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + METEOR_TABLE);
 
     private DatabaseHelper dbHelper;
 
     private static final String SQL_CREATE_MAIN = "CREATE TABLE " +
             METEOR_TABLE +  // Table's name
-            "(_ID INTEGER PRIMARY KEY, " + COLUMN_NAME + " TEXT NOT NULL," +
-            COLUMN_METEOR_ID + " INTEGER NOT NULL," + COLUMN_NAMETYPE + " TEXT NOT NULL," +
-            COLUMN_RECCLASS + " TEXT NOT NULL," + COLUMN_MASS + " REAL NOT NULL," +
-            COLUMN_FALL + " TEXT NOT NULL," + COLUMN_YEAR + " TEXT NOT NULL" +
-            COLUMN_RECLAT + " REAL NOT NULL," + COLUMN_RECLONG + " REAL NOT NULL," +
+            "(_ID INTEGER PRIMARY KEY, " + COLUMN_NAME + " TEXT NOT NULL, " +
+            COLUMN_METEOR_ID + " INTEGER NOT NULL, " + COLUMN_NAMETYPE + " TEXT NOT NULL, " +
+            COLUMN_RECCLASS + " TEXT NOT NULL, " + COLUMN_MASS + " REAL NOT NULL, " +
+            COLUMN_FALL + " TEXT NOT NULL," + COLUMN_YEAR + " TEXT NOT NULL, " +
+            COLUMN_RECLAT + " REAL NOT NULL, " + COLUMN_RECLONG + " REAL NOT NULL, " +
             COLUMN_GEO_LOCATION + " TEXT NOT NULL)";
-
 
     public MeteorContentProvider() {
     }
