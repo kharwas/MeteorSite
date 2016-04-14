@@ -21,6 +21,9 @@
             android:authorities="com.example.meteorsite.provider"
             android:enabled="true"
             android:exported="true"></provider>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBgNpt-YCQTpvKrKErMsLTxt3Cy1Sm4Or4"/>
     </application>
-
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>
