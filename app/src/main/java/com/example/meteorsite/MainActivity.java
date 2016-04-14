@@ -4,13 +4,17 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RadioButton;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -39,10 +43,13 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener {
 
     Button sub;
+    EditText rng;
+    double range = 0;
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     MapFragment mapFragment;
     GoogleApiClient mGoogleApiClient;
     GoogleMap googleMap;
+    Location lastKnown;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +63,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         sub = (Button) findViewById(R.id.subbtn);
+
+        // getting location
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        boolean enabled = false;
+        String locationProvider = LocationManager.NETWORK_PROVIDER;
+        try {
+            enabled= locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            Location lastKnown = locationManager.getLastKnownLocation(locationProvider);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+
+        if (enabled) {
+            Log.e("enabled", lastKnown.toString());
+        }
 
 
         mapFragment = (MapFragment) getFragmentManager().findFragmentByTag(MeteorMapFragment.FRAGMENT_TAG);
@@ -107,6 +129,39 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // TODO: Handle the error.
         }
     }
+
+    public void setRange(View v) {
+        // get double range from edittext
+        rng = (EditText) findViewById(R.id.range);
+        range = Double.parseDouble(rng.getText().toString());
+
+        // convert range in miles to range in kilos then to degrees
+        double rangeInKm = range;
+        double rangeLong = (1 / (111.32 * Math.cos(lastKnown.getLatitude())) * (rangeInKm/2 * .621371));
+        double rangeLat = (1 / 111.32) * (range/2 * .621371);
+
+        // create location box
+        double upperLong;
+        double lowerLong;
+        double upperLat;
+        double lowerLat;
+        if (lastKnown.getLongitude() > 0) {
+            upperLong = lastKnown.getLongitude() + rangeLong;
+            lowerLong = lastKnown.getLongitude() - rangeLong;
+        } else {
+            upperLong = lastKnown.getLongitude() - rangeLong;
+            lowerLong = lastKnown.getLongitude() + rangeLong;
+        }
+        if (lastKnown.getLatitude() > 0) {
+            upperLat = lastKnown.getLatitude() + rangeLat;
+            lowerLat = lastKnown.getLatitude() - rangeLat;
+        } else {
+            upperLat = lastKnown.getLatitude() - rangeLat;
+            lowerLat = lastKnown.getLatitude() + rangeLat;
+        }
+
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
