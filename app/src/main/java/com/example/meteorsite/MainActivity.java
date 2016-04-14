@@ -14,8 +14,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CursorAdapter;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.RadioButton;
+import android.widget.SimpleCursorAdapter;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -50,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     GoogleApiClient mGoogleApiClient;
     GoogleMap googleMap;
     Location lastKnown;
+    private MyDatabase db;
+    private Cursor meteorites;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (enabled) {
             Log.e("enabled", lastKnown.toString());
         }
-
+        db = new MyDatabase(this);
 
         mapFragment = (MapFragment) getFragmentManager().findFragmentByTag(MeteorMapFragment.FRAGMENT_TAG);
         if(mapFragment == null)
@@ -167,6 +172,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.e("Bounds", String.valueOf(lowerLong));
         Log.e("Bounds", String.valueOf(upperLat));
         Log.e("Bounds", String.valueOf(lowerLat));
+
+        //
+        meteorites = db.getMeteorites(upperLong, lowerLong, upperLat, lowerLat);
+
+        Log.e("one", String.valueOf(meteorites.getColumnCount()));
+        if (meteorites.getColumnCount() > 0) {
+            do {
+                for (int i = 0; i < meteorites.getColumnCount(); i++) {
+                    double lat = Double.parseDouble(meteorites.getString(3));
+                    double lng = Double.parseDouble(meteorites.getString(4));
+                    googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lng)).title(meteorites.getString(1)));
+
+                    Log.e("Column", meteorites.getString(i));
+                }
+            }while (meteorites.moveToNext());
+        }
+
     }
 
 
@@ -198,5 +220,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // The user canceled the operation.
             }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        meteorites.close();
+        db.close();
     }
 }
