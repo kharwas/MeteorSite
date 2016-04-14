@@ -33,6 +33,6 @@
         android:text="Set Range"
         android:layout_toRightOf="@id/subbtn"
         android:layout_below="@id/range"
-        android:onClick="search" />
+        android:onClick="setRange" />
 
 </RelativeLayout>

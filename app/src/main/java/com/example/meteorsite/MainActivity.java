@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         String locationProvider = LocationManager.NETWORK_PROVIDER;
         try {
             enabled= locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-            Location lastKnown = locationManager.getLastKnownLocation(locationProvider);
+            lastKnown = locationManager.getLastKnownLocation(locationProvider);
         } catch (SecurityException e) {
             e.printStackTrace();
         }
@@ -133,8 +133,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void setRange(View v) {
         // get double range from edittext
         rng = (EditText) findViewById(R.id.range);
-        range = Double.parseDouble(rng.getText().toString());
-
+        if (rng.getText().toString().length() > 0) {
+            range = Double.parseDouble(rng.getText().toString());
+        } else {
+            range = 50;
+        }
         // convert range in miles to range in kilos then to degrees
         double rangeInKm = range;
         double rangeLong = (1 / (111.32 * Math.cos(lastKnown.getLatitude())) * (rangeInKm/2 * .621371));
@@ -160,6 +163,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             lowerLat = lastKnown.getLatitude() + rangeLat;
         }
 
+        Log.e("Bounds", String.valueOf(upperLong));
+        Log.e("Bounds", String.valueOf(lowerLong));
+        Log.e("Bounds", String.valueOf(upperLat));
+        Log.e("Bounds", String.valueOf(lowerLat));
     }
 
 
