@@ -22,8 +22,8 @@
             android:enabled="true"
             android:exported="true"></provider>
         <meta-data
-            android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyBgNpt-YCQTpvKrKErMsLTxt3Cy1Sm4Or4"/>
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCz5V39VPxvPxJcOXz6tXDPB86jWLBR0F4"/>
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />

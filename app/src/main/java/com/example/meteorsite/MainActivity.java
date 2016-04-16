@@ -47,12 +47,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     Button sub;
     EditText rng;
-    double range = 0;
+    double range = 0.0;
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     MapFragment mapFragment;
     GoogleApiClient mGoogleApiClient;
     GoogleMap googleMap;
     Location lastKnown;
+    Location userEntered;
     private MyDatabase db;
     private Cursor meteorites;
     @Override
@@ -60,11 +61,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mGoogleApiClient = new GoogleApiClient
+      /*  mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
                 .addApi(Places.PLACE_DETECTION_API)
                 .enableAutoManage(this, this)
-                .build();
+                .build();*/
 
 
         sub = (Button) findViewById(R.id.subbtn);
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         if (enabled) {
-            Log.e("enabled", lastKnown.toString());
+//            Log.e("enabled", lastKnown.toString());
         }
         db = new MyDatabase(this);
 
@@ -139,54 +140,69 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // get double range from edittext
         rng = (EditText) findViewById(R.id.range);
         if (rng.getText().toString().length() > 0) {
-            range = Double.parseDouble(rng.getText().toString());
+            range = Double.parseDouble(rng.getText().toString().trim());
         } else {
             range = 50;
         }
+
+        Location location;
+
+        if(lastKnown == null && userEntered == null){
+            return;
+        }
+        else if(userEntered == null){
+            location = lastKnown;
+        }
+        else
+            location = userEntered;
+
         // convert range in miles to range in kilos then to degrees
         double rangeInKm = range;
-        double rangeLong = (1 / (111.32 * Math.cos(lastKnown.getLatitude())) * (rangeInKm/2 * .621371));
+        double rangeLong = (1 / (111.32 * Math.cos(location.getLatitude())) * (rangeInKm/2 * .621371));
         double rangeLat = (1 / 111.32) * (range/2 * .621371);
 
         // create location box
-        double upperLong;
-        double lowerLong;
-        double upperLat;
-        double lowerLat;
-        if (lastKnown.getLongitude() > 0) {
-            upperLong = lastKnown.getLongitude() + rangeLong;
-            lowerLong = lastKnown.getLongitude() - rangeLong;
+        double upperLong = 0.0;
+        double lowerLong = 0.0;
+        double upperLat = 0.0;
+        double lowerLat = 0.0;
+        if (location.getLongitude() > 0) {
+            upperLong = location.getLongitude() + rangeLong;
+            lowerLong = location.getLongitude() - rangeLong;
         } else {
-            upperLong = lastKnown.getLongitude() - rangeLong;
-            lowerLong = lastKnown.getLongitude() + rangeLong;
+            upperLong = location.getLongitude() - rangeLong;
+            lowerLong = location.getLongitude() + rangeLong;
         }
-        if (lastKnown.getLatitude() > 0) {
-            upperLat = lastKnown.getLatitude() + rangeLat;
-            lowerLat = lastKnown.getLatitude() - rangeLat;
+        if (location.getLatitude() > 0) {
+            upperLat = location.getLatitude() + rangeLat;
+            lowerLat = location.getLatitude() - rangeLat;
         } else {
-            upperLat = lastKnown.getLatitude() - rangeLat;
-            lowerLat = lastKnown.getLatitude() + rangeLat;
+            upperLat = location.getLatitude() - rangeLat;
+            lowerLat = location.getLatitude() + rangeLat;
         }
 
-        Log.e("Bounds", String.valueOf(upperLong));
-        Log.e("Bounds", String.valueOf(lowerLong));
-        Log.e("Bounds", String.valueOf(upperLat));
-        Log.e("Bounds", String.valueOf(lowerLat));
+        Log.i("Bounds", upperLong + "");
+        Log.i("Bounds", lowerLong + "");
+        Log.i("Bounds", upperLat + "");
+        Log.i("Bounds", lowerLat + "");
 
         //
         meteorites = db.getMeteorites(upperLong, lowerLong, upperLat, lowerLat);
 
         Log.e("one", String.valueOf(meteorites.getColumnCount()));
-        if (meteorites.getColumnCount() > 0) {
+
+        if (meteorites != null && meteorites.moveToFirst()) {
             do {
                 for (int i = 0; i < meteorites.getColumnCount(); i++) {
-                    double lat = Double.parseDouble(meteorites.getString(3));
-                    double lng = Double.parseDouble(meteorites.getString(4));
-                    googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lng)).title(meteorites.getString(1)));
+                    Log.i("info", meteorites.getString(meteorites.getColumnIndex("id")));
+                    double lat = Double.parseDouble(meteorites.getString(meteorites.getColumnIndex("reclat")));
+                    double lng = Double.parseDouble(meteorites.getString(meteorites.getColumnIndex("reclong")));
+                    googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lng)).title(meteorites.getString(meteorites.getColumnIndex("id"))));
 
                     Log.e("Column", meteorites.getString(i));
                 }
             }while (meteorites.moveToNext());
+            meteorites.close();
         }
 
     }
@@ -208,6 +224,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .include(new LatLng(place.getLatLng().latitude, place.getLatLng().longitude - 5))
                         .build();
 
+                userEntered = new Location("provider");
+                userEntered.setLatitude(place.getLatLng().latitude);
+                userEntered.setLongitude(place.getLatLng().longitude);
+
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50));
                 Log.i("test", "Place: " + place.getName());
                 Log.i("test", "LatLong: " + place.getLatLng());
@@ -225,7 +245,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        meteorites.close();
         db.close();
     }
 }
