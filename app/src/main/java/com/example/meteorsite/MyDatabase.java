@@ -9,9 +9,7 @@ import android.util.Log;
 
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
-/**
- * Created by malik on 4/14/16.
- */
+
 public class MyDatabase extends SQLiteAssetHelper{
     private static final String DATABASE_NAME = "meteorite.db";
     private static final int DATABASE_VERSION = 1;
@@ -30,9 +28,8 @@ public class MyDatabase extends SQLiteAssetHelper{
         String lowerLong = "reclong<" + String.valueOf(llng) + " AND ";
         String upperLong = "reclong>" + String.valueOf(ulng);
         String sqlWhere = lowerLat + upperLat + lowerLong + upperLong;
-        Log.e("Where", sqlWhere);
+
         String sqlTables = "meteorite";
-//        String where = "reclat>" + String.valueOf(llat) + " AND"
 
         qb.setTables(sqlTables);
         Cursor c = qb.query(db, sqlSelect, sqlWhere, null, "mass", null, null, "10");

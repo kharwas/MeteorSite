@@ -7,35 +7,12 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.meteorsite.MainActivity">
+    tools:context="com.example.meteorsite.MainActivity"
+    android:id="@+id/content_frame">
 
     <com.google.android.gms.maps.MapView android:id="@+id/mapview"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/range"
+        android:layout_height="fill_parent"
         android:layout_alignParentTop="true" />
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/range"
-        android:layout_above="@+id/subbtn"
-        android:inputType="number" />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Enter Location"
-        android:id="@+id/subbtn"
-        android:onClick="search"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/setrng"
-        android:text="Set Range"
-        android:layout_toRightOf="@id/subbtn"
-        android:layout_below="@id/range"
-        android:onClick="setRange" />
 
 </RelativeLayout>
